@@ -1,0 +1,55 @@
+{
+  "name": "Test Email Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger-id",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_SENDER }}",
+        "toEmail": "csm@example.com",
+        "subject": "ChurnGuard SMTP Test Alert",
+        "html": "<h3>SMTP Test Connection Successful</h3><p>Your n8n email notification system is working correctly.</p>"
+      },
+      "id": "email-node-id",
+      "name": "Send Test Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        500,
+        300
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-credentials-id",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Send Test Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

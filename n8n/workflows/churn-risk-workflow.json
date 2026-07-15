@@ -1,0 +1,10 @@
+{
+  "name": "Churn Risk Signal Processor",
+  "nodes": [
+    {"parameters":{"path":"churn-signal","httpMethod":"POST","responseMode":"lastNode"},"id":"1","name":"Receive signal","type":"n8n-nodes-base.webhook","typeVersion":2,"position":[300,300]},
+    {"parameters":{"url":"http://api:3000/api/signals","sendBody":true,"contentType":"json","jsonBody":"={{ JSON.stringify($json.body) }}"},"id":"2","name":"Score customer health","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[580,300]}
+  ],
+  "connections":{"Receive signal":{"main":[[{"node":"Score customer health","type":"main","index":0}]]}},
+  "active":false,
+  "settings":{"executionOrder":"v1"}
+}
