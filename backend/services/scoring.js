@@ -20,24 +20,29 @@ function getRecommendation({ usageDrop = 0, openTickets = 0, sentiment = 'neutra
  
 function buildPrompt(customer) {
   return `
-You are a SaaS Customer Success AI assistant.
+You are an AI Customer Success Assistant.
 
-Customer Health Data:
+Analyze the customer health summary below and generate actionable insights.
+
+Customer Summary:
+- Company: ${customer.companyName || "Unknown"}
+- Health Score: ${customer.score}
+- Risk Level: ${customer.riskLevel}
 - Usage Drop: ${customer.usageDrop}%
 - Open Tickets: ${customer.openTickets}
 - Sentiment: ${customer.sentiment}
 - Days Inactive: ${customer.daysInactive}
 - Renewal In: ${customer.renewalDays} days
 
-Based on the customer health data above:
-
-1. Explain the churn risk in one sentence.
-2. Give at least three actionable next steps.
-3. Keep the response clear, concise and professional.
+Instructions:
+1. Explain the customer's current health in one sentence.
+2. Generate at least three actionable recommendations.
+3. Keep each recommendation short and practical.
+4. Format the output using bullet points.
 `;
 }
 module.exports = {
   getHealthScore,
   getRecommendation,
-  buildPrompt
+  buildPrompt,
 };
