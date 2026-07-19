@@ -1,6 +1,10 @@
 const router = require('express').Router();
 const { query } = require('../config/db');
-const { getHealthScore, getRecommendation } = require('../services/scoring');
+const {
+  getHealthScore,
+  getRecommendation,
+  buildPrompt
+} = require('../services/scoring');
 
 const dashboardSql = `SELECT c.id, c.company_name, c.plan, c.csm_email, h.score, h.risk_level,
   h.insight, h.next_step, h.updated_at, COALESCE(s.usage_drop, 0)::float usage_drop,
@@ -103,6 +107,33 @@ router.post('/signals', async (req, res, next) => { try { res.status(201).json(a
 router.post('/signals/bulk', async (req, res, next) => {
   try { if (!Array.isArray(req.body.signals) || !req.body.signals.length || req.body.signals.length > 100) throw Object.assign(new Error('signals must contain 1 to 100 items.'), { status: 400 }); const results = []; for (const signal of req.body.signals) results.push(await recordSignal(signal)); res.status(201).json({ processed: results.length, results }); } catch (error) { next(error); }
 });
-router.get('/alerts', async (_req, res, next) => { try { const result = await query(`${dashboardSql} WHERE h.risk_level IN ('high', 'medium') ORDER BY h.score ASC`); res.json(result.rows.map(customer => ({ customerId: customer.id, companyName: customer.company_name, riskLevel: customer.risk_level, score: customer.score, insight: customer.insight, nextStep: customer.next_step, csmEmail: customer.csm_email }))); } catch (error) { next(error); } });
+rrouter.get('/alerts', async (_req, res, next) => {
+  try {
+    const result = await query(
+      `${dashboardSql} WHERE h.risk_level IN ('high', 'medium') ORDER BY h.score ASC`
+    );
+
+    res.json(
+      result.rows.map(customer => ({
+        customerId: customer.id,
+        companyName: customer.company_name,
+        riskLevel: customer.risk_level,
+        score: customer.score,
+        insight: customer.insight,
+        nextStep: customer.next_step,
+        aiPrompt: buildPrompt({
+          usageDrop: customer.usage_drop,
+          openTickets: customer.open_tickets,
+          sentiment: customer.sentiment,
+          daysInactive: customer.days_inactive,
+          renewalDays: customer.renewal_days
+        }),
+        csmEmail: customer.csm_email
+      }))
+    );
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = router;
