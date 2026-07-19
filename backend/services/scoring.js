@@ -1,11 +1,42 @@
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+const SCORING_CONFIG = {
+  maxScore: 100,
+  ticketPenalty: 6,
+  negativeSentimentPenalty: 18,
+  positiveSentimentBonus: -5,
+  inactivityPenaltyPerDay: 0.8,
+  renewalPenalty: 8,
+  renewalThreshold: 45,
+};
 
 function getHealthScore({ usageDrop = 0, openTickets = 0, sentiment = 'neutral', daysInactive = 0, renewalDays = 180 }) {
   const normalizedSentiment = String(sentiment).toLowerCase();
-  const sentimentPenalty = normalizedSentiment === 'negative' ? 18 : normalizedSentiment === 'positive' ? -5 : 0;
-  const inactivityPenalty = Math.min(Number(daysInactive) || 0, 30) * 0.8;
-  const renewalPenalty = Number(renewalDays) >= 0 && Number(renewalDays) <= 45 ? 8 : 0;
-  const score = clamp(Math.round(100 - Number(usageDrop) - (Number(openTickets) * 6) - sentimentPenalty - inactivityPenalty - renewalPenalty), 0, 100);
+  const sentimentPenalty =
+  normalizedSentiment === 'negative'
+    ? SCORING_CONFIG.negativeSentimentPenalty
+    : normalizedSentiment === 'positive'
+    ? SCORING_CONFIG.positiveSentimentBonus
+    : 0;
+  const inactivityPenalty =
+  Math.min(Number(daysInactive) || 0, 30) *
+  SCORING_CONFIG.inactivityPenaltyPerDay;
+  const renewalPenalty =
+  Number(renewalDays) >= 0 &&
+  Number(renewalDays) <= SCORING_CONFIG.renewalThreshold
+    ? SCORING_CONFIG.renewalPenalty
+    : 0;
+  const score = clamp(
+  Math.round(
+    SCORING_CONFIG.maxScore -
+    Number(usageDrop) -
+    (Number(openTickets) * SCORING_CONFIG.ticketPenalty) -
+    sentimentPenalty -
+    inactivityPenalty -
+    renewalPenalty
+  ),
+  0,
+  SCORING_CONFIG.maxScore
+);
   const riskLevel = score < 50 ? 'high' : score < 75 ? 'medium' : 'low';
   return { score, riskLevel };
 }
@@ -51,6 +82,7 @@ Recommendations:
 `;
 }
 module.exports = {
+  SCORING_CONFIG,
   getHealthScore,
   getRecommendation,
   buildPrompt,
