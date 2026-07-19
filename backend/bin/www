@@ -1,5 +1,19 @@
 #!/usr/bin/env node
 const http = require('http');
 const app = require('../app');
+const { migrate } = require('../config/db');
 const port = process.env.PORT || 3000;
-http.createServer(app).listen(port, () => console.log(`Churn Signal API listening on ${port}`));
+
+async function start() {
+  for (let attempt = 1; attempt <= 12; attempt += 1) {
+    try { await migrate(); break; }
+    catch (error) {
+      if (attempt === 12) throw error;
+      console.log(`Waiting for PostgreSQL (${attempt}/12)…`);
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+  }
+  http.createServer(app).listen(port, () => console.log(`RetainIQ API listening on ${port}`));
+}
+
+start().catch(error => { console.error('API could not start:', error.message); process.exit(1); });
