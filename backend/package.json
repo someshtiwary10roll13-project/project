@@ -2,9 +2,12 @@
   "name": "churn-signal-api",
   "version": "1.0.0",
   "private": true,
-  "scripts": { "start": "node ./bin/www", "dev": "node ./bin/www" },
+  "scripts": {
+    "start": "node ./bin/www",
+    "dev": "node ./bin/www"
+  },
   "dependencies": {
-    "cors": "^2.8.5",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^4.21.2",
     "pg": "^8.13.1"
