@@ -36,15 +36,27 @@ router.post('/ingest', (req, res) => {
   const input = req.body || {};
 
   const normalizedData = {
-    customerId: Number(input.customerId) || 0,
-    source: input.source || "manual",
-    usageDrop: Number(input.usageDrop) || 0,
-    openTickets: Number(input.openTickets) || 0,
-    sentiment: (input.sentiment || "neutral").toLowerCase(),
-    daysInactive: Number(input.daysInactive) || 0,
-    renewalDays: Number(input.renewalDays) || 180,
-    note: input.note || ""
-  };
+  customerId: Number(input.customerId) || 0,
+  source: String(input.source || "manual"),
+
+  usageDrop: Number(input.usageDrop ?? input.usage_drop ?? 0),
+
+  openTickets: Number(input.openTickets ?? input.open_tickets ?? 0),
+
+  sentiment: String(
+    input.sentiment ?? "neutral"
+  ).toLowerCase(),
+
+  daysInactive: Number(
+    input.daysInactive ?? input.days_inactive ?? 0
+  ),
+
+  renewalDays: Number(
+    input.renewalDays ?? input.renewal_days ?? 180
+  ),
+
+  note: String(input.note || "").trim()
+};
 
   res.json({
     success: true,
