@@ -36,9 +36,18 @@ Customer Summary:
 
 Instructions:
 1. Explain the customer's current health in one sentence.
-2. Generate at least three actionable recommendations.
-3. Keep each recommendation short and practical.
-4. Format the output using bullet points.
+2. Return the output in exactly this format:
+
+Insight:
+<Actionable insight>
+
+Recommendations:
+- Recommendation 1
+- Recommendation 2
+- Recommendation 3
+
+3. Keep every recommendation under 20 words.
+4. Do not include extra explanation.
 `;
 }
 module.exports = {
