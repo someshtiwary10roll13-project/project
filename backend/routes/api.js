@@ -32,6 +32,27 @@ router.get('/config/scoring', (_req, res) => {
   res.json(SCORING_CONFIG);
 });
 
+router.post('/ingest', (req, res) => {
+  const input = req.body || {};
+
+  const normalizedData = {
+    customerId: Number(input.customerId) || 0,
+    source: input.source || "manual",
+    usageDrop: Number(input.usageDrop) || 0,
+    openTickets: Number(input.openTickets) || 0,
+    sentiment: (input.sentiment || "neutral").toLowerCase(),
+    daysInactive: Number(input.daysInactive) || 0,
+    renewalDays: Number(input.renewalDays) || 180,
+    note: input.note || ""
+  };
+
+  res.json({
+    success: true,
+    message: "Customer health signal normalized successfully.",
+    data: normalizedData
+  });
+});
+
 // ==============================
 // AI Alerts Endpoint
 // ==============================
