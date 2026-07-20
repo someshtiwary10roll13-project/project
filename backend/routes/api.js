@@ -35,28 +35,51 @@ router.get('/config/scoring', (_req, res) => {
 router.post('/ingest', (req, res) => {
   const input = req.body || {};
 
+  if (!input.customerId) {
+    console.error("Missing customerId");
+
+    return res.status(400).json({
+      success: false,
+      message: "customerId is required"
+    });
+  }
+
   const normalizedData = {
-  customerId: Number(input.customerId) || 0,
-  source: String(input.source || "manual"),
+    customerId: Number(input.customerId) || 0,
+    source: String(input.source || "manual"),
 
-  usageDrop: Number(input.usageDrop ?? input.usage_drop ?? 0),
+    usageDrop: Number(input.usageDrop ?? input.usage_drop ?? 0),
 
-  openTickets: Number(input.openTickets ?? input.open_tickets ?? 0),
+    openTickets: Number(input.openTickets ?? input.open_tickets ?? 0),
 
-  sentiment: String(
-    input.sentiment ?? "neutral"
-  ).toLowerCase(),
+    sentiment: String(
+      input.sentiment ?? "neutral"
+    ).toLowerCase(),
 
-  daysInactive: Number(
-    input.daysInactive ?? input.days_inactive ?? 0
-  ),
+    daysInactive: Number(
+      input.daysInactive ?? input.days_inactive ?? 0
+    ),
 
-  renewalDays: Number(
-    input.renewalDays ?? input.renewal_days ?? 180
-  ),
+    renewalDays: Number(
+      input.renewalDays ?? input.renewal_days ?? 180
+    ),
 
-  note: String(input.note || "").trim()
-};
+    note: String(input.note || "").trim()
+  };
+
+  if (
+    isNaN(normalizedData.usageDrop) ||
+    isNaN(normalizedData.openTickets) ||
+    isNaN(normalizedData.daysInactive) ||
+    isNaN(normalizedData.renewalDays)
+  ) {
+    console.error("Malformed numeric fields");
+
+    normalizedData.usageDrop = 0;
+    normalizedData.openTickets = 0;
+    normalizedData.daysInactive = 0;
+    normalizedData.renewalDays = 180;
+  }
 
   res.json({
     success: true,
